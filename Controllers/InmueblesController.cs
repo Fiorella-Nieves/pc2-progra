@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PortalInmobiliario.Models;
 using PortalInmobiliario.Data;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace PortalInmobiliario.Controllers
 {
@@ -53,6 +53,47 @@ namespace PortalInmobiliario.Controllers
             return View(inmueble);
         }
 
+        // POST: Inmuebles/Reservar/5
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reservar(int id)
+        {
+            var inmueble = await _context.Inmuebles
+                .FirstOrDefaultAsync(i => i.Id == id && i.Activo);
+
+            if (inmueble == null)
+            {
+                TempData["Error"] = "Inmueble no encontrado o no disponible.";
+                return RedirectToAction("Index");
+            }
+
+            // Validar que no exista reserva activa
+            var reservaActiva = await _context.Reservas
+                .AnyAsync(r => r.InmuebleId == id && r.FechaExpiracion > DateTime.Now);
+
+            if (reservaActiva)
+            {
+                TempData["Error"] = "Este inmueble ya tiene una reserva activa.";
+                return RedirectToAction("Details", new { id });
+            }
+
+            var reserva = new Reserva
+            {
+                InmuebleId = id,
+                UsuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                FechaCreacion = DateTime.Now,
+                FechaExpiracion = DateTime.Now.AddHours(48) // 48 horas de reserva
+            };
+
+            _context.Reservas.Add(reserva);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Inmueble reservado exitosamente. La reserva expira el {reserva.FechaExpiracion:dd/MM/yyyy a las HH:mm}.";
+            return RedirectToAction("Details", new { id });
+        }
+
+        // Método privado para aplicar filtros y preparar el ViewModel
         private async Task<InmuebleListViewModel> AplicarFiltrosYVista(InmuebleFilterViewModel filtro)
         {
             var query = _context.Inmuebles.Where(i => i.Activo);
@@ -105,6 +146,7 @@ namespace PortalInmobiliario.Controllers
         }
     }
 
+    // ViewModel para la lista de inmuebles
     public class InmuebleListViewModel
     {
         public List<Inmueble> Inmuebles { get; set; } = new List<Inmueble>();

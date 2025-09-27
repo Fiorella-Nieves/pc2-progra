@@ -1,0 +1,9 @@
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.AssemblyInfoInputs.cache
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.AssemblyInfo.cs
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.csproj.CoreCompileInputs.cache
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.RazorAssemblyInfo.cache
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.RazorAssemblyInfo.cs
+C:\Users\Fiorella\Desktop\pc2-progra\obj\Debug\net9.0\pc2-progra.sourcelink.json

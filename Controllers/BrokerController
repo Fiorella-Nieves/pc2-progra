@@ -1,0 +1,41 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PortalInmobiliario.Models;
+using PortalInmobiliario.Data;
+using PortalInmobiliario.Services;
+using Microsoft.AspNetCore.Authorization;
+
+namespace PortalInmobiliario.Controllers
+{
+    [Authorize(Roles = "Broker")]
+    public class BrokerController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ICacheService _cacheService;
+
+        public BrokerController(ApplicationDbContext context, ICacheService cacheService)
+        {
+            _context = context;
+            _cacheService = cacheService;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleActivo(int id)
+        {
+            var inmueble = await _context.Inmuebles.FindAsync(id);
+            if (immueble != null)
+            {
+                inmueble.Activo = !inmueble.Activo;
+                _context.Update(inmueble);
+                await _context.SaveChangesAsync();
+                
+                // Invalidar caché después de modificar
+                await _cacheService.InvalidateInmueblesCacheAsync();
+                
+                TempData["Success"] = $"Inmueble {(inmueble.Activo ? "activado" : "desactivado")} correctamente";
+            }
+            
+            return RedirectToAction("Index");
+        }
+    }
+}

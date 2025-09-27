@@ -28,6 +28,5 @@ namespace PortalInmobiliario.Models
         public virtual Inmueble Inmueble { get; set; }
 
         [ForeignKey("UsuarioId")]
-        public virtual ApplicationUser Usuario { get; set; }
     }
 }

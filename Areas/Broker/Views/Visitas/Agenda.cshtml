@@ -1,0 +1,86 @@
+@model IEnumerable<PortalInmobiliario.Models.Visita>
+@{
+    ViewData["Title"] = "Agenda del Día";
+    Layout = "~/Areas/Broker/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1>@ViewData["Title"] - @ViewBag.FechaSeleccionada.ToString("dd/MM/yyyy")</h1>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a asp-action="Agenda" asp-route-fecha="@ViewBag.FechaAnterior.ToString("yyyy-MM-dd")" 
+           class="btn btn-outline-primary">
+            <i class="fas fa-chevron-left"></i> Día Anterior
+        </a>
+        
+        <a asp-action="Agenda" asp-route-fecha="@DateTime.Today.ToString("yyyy-MM-dd")" 
+           class="btn btn-outline-secondary">
+            Hoy
+        </a>
+        
+        <a asp-action="Agenda" asp-route-fecha="@ViewBag.FechaSiguiente.ToString("yyyy-MM-dd")" 
+           class="btn btn-outline-primary">
+            Día Siguiente <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No hay visitas agendadas para esta fecha.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var visita in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card @(visita.Estado == EstadoVisita.Confirmada ? "border-success" : 
+                                      visita.Estado == EstadoVisita.Cancelada ? "border-danger" : "border-warning")">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">@visita.Inmueble.Titulo</h6>
+                            <small class="text-muted">@visita.Inmueble.Codigo</small>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Cliente:</strong> @visita.Usuario.Email</p>
+                            <p><strong>Horario:</strong> @visita.FechaInicio.ToString("HH:mm") - @visita.FechaFin.ToString("HH:mm")</p>
+                            <p><strong>Estado:</strong> 
+                                <span class="badge @(visita.Estado == EstadoVisita.Confirmada ? "bg-success" : 
+                                                  visita.Estado == EstadoVisita.Cancelada ? "bg-danger" : "bg-warning")">
+                                    @visita.Estado
+                                </span>
+                            </p>
+                            @if (!string.IsNullOrEmpty(visita.Notas))
+                            {
+                                <p><strong>Notas:</strong> @visita.Notas</p>
+                            }
+                        </div>
+                        <div class="card-footer">
+                            @if (visita.Estado == EstadoVisita.Solicitada)
+                            {
+                                <div class="btn-group w-100">
+                                    <form asp-action="Confirmar" method="post" class="flex-fill">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@visita.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm w-100">
+                                            <i class="fas fa-check"></i> Confirmar
+                                        </button>
+                                    </form>
+                                    <form asp-action="Cancelar" method="post" class="flex-fill">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@visita.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm w-100" 
+                                                onclick="return confirm('¿Cancelar esta visita?')">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

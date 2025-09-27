@@ -1,0 +1,63 @@
+@model PortalInmobiliario.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Detalle del Inmueble";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>@Model.Titulo</h1>
+            <p class="text-muted">Código: @Model.Codigo</p>
+            
+            <img src="@(Model.Imagen ?? "/img/placeholder.jpg")" class="img-fluid rounded mb-4" alt="@Model.Titulo">
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4>Características</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Tipo:</strong> @Model.Tipo</li>
+                        <li><strong>Ciudad:</strong> @Model.Ciudad</li>
+                        <li><strong>Dirección:</strong> @Model.Direccion</li>
+                        <li><strong>Dormitorios:</strong> @Model.Dormitorios</li>
+                        <li><strong>Baños:</strong> @Model.Banos</li>
+                        <li><strong>Metros Cuadrados:</strong> @Model.MetrosCuadrados m²</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h3 class="text-primary">S/ @Model.Precio.ToString("N0")</h3>
+                            <p class="text-muted">Precio</p>
+                            
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a href="@Url.Action("AgendarVisita", "Visitas", new { inmuebleId = Model.Id })" 
+                                   class="btn btn-success btn-lg mt-2">
+                                    <i class="fas fa-calendar-plus"></i> Agendar Visita
+                                </a>
+                            }
+                            else
+                            {
+                                <p class="text-warning mt-2">
+                                    <a asp-area="Identity" asp-page="/Account/Login">Inicia sesión</a> para agendar una visita
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h4>Descripción</h4>
+                <p>@(string.IsNullOrEmpty(Model.Descripcion) ? "No hay descripción disponible." : Model.Descripcion)</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Catálogo
+        </a>
+    </div>
+</div>

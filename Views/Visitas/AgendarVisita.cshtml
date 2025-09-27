@@ -1,0 +1,96 @@
+@model PortalInmobiliario.Models.AgendarVisitaViewModel
+
+@{
+    ViewData["Title"] = "Agendar Visita";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title mb-0">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-primary">@Model.InmuebleTitulo</h4>
+                    
+                    <form asp-action="AgendarVisita" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="InmuebleId" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FechaInicio" class="form-label"></label>
+                                <input asp-for="FechaInicio" class="form-control" />
+                                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                                <small class="form-text text-muted">Horario laboral: 8:00 - 19:00</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label asp-for="FechaFin" class="form-label"></label>
+                                <input asp-for="FechaFin" class="form-control" />
+                                <span asp-validation-for="FechaFin" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Notas" class="form-label"></label>
+                            <textarea asp-for="Notas" class="form-control" rows="4" 
+                                      placeholder="Observaciones, requisitos especiales, etc."></textarea>
+                            <span asp-validation-for="Notas" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Información importante</h6>
+                            <ul class="mb-0">
+                                <li>Las visitas deben agendarse con al menos 2 horas de anticipación</li>
+                                <li>Horario laboral: Lunes a Viernes de 8:00 a 19:00</li>
+                                <li>Recibirás una confirmación por correo electrónico</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Details", "Inmuebles", new { id = Model.InmuebleId })" 
+                               class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Agendar Visita</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Configurar datetime-local inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInicioInput = document.getElementById('FechaInicio');
+            const fechaFinInput = document.getElementById('FechaFin');
+            
+            // Formatear para datetime-local
+            function formatDateForInput(date) {
+                return date.toISOString().slice(0, 16);
+            }
+            
+            // Establecer valores mínimos
+            const now = new Date();
+            const minDate = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 horas desde ahora
+            
+            fechaInicioInput.min = formatDateForInput(minDate);
+            fechaFinInput.min = formatDateForInput(minDate);
+            
+            // Sincronizar fechas
+            fechaInicioInput.addEventListener('change', function() {
+                const fechaInicio = new Date(this.value);
+                const fechaFin = new Date(fechaInicio.getTime() + 60 * 60 * 1000); // +1 hora
+                
+                if (!fechaFinInput.value || new Date(fechaFinInput.value) <= fechaInicio) {
+                    fechaFinInput.value = formatDateForInput(fechaFin);
+                }
+            });
+        });
+    </script>
+}

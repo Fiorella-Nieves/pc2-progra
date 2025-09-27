@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PortalInmobiliario.Data;
+using PortalInmobiliario.Services;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// Configurar Redis
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnectionString;
+    options.InstanceName = "PortalInmobiliario_";
+});
+
+// Configurar sesiones con Redis
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromHours(2);
+});
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// Registrar servicio de caché personalizado
+builder.Services.AddScoped<ICacheService, CacheService>();
+
+var app = builder.Build();
 
 // Configuración de Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => 
@@ -43,10 +68,11 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // ✅ Esto sí es correcto para archivos estáticos
+app.UseStaticFiles(); 
+app.UseSession();
 app.UseRouting();
 
-app.UseAuthentication(); // ✅ Importante: agregar autenticación
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Configuración de rutas
@@ -54,6 +80,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages(); // ✅ Necesario para Identity pages
+app.MapRazorPages();
 
 app.Run();

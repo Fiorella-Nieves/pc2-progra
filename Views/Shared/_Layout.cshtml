@@ -1,32 +1,62 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using PortalInmobiliario.Services
+@inject ICacheService CacheService
+
+<!DOCTYPE html>
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - pc2_progra</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/pc2_progra.styles.css" asp-append-version="true" />
+    <!-- head content -->
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">pc2_progra</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <div class="container">
+                <!-- logo y menú principal -->
+                
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Inmuebles" asp-action="Index">Catálogo</a>
                         </li>
+                        
+                        <!-- Atajos de sesión -->
+                        @{
+                            var ultimosFiltros = await CacheService.ObtenerFiltrosDeSesionAsync();
+                            var ultimoInmueble = await CacheService.ObtenerUltimoInmuebleVisitadoAsync();
+                        }
+                        
+                        @if (ultimosFiltros != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-info" 
+                                   asp-controller="Inmuebles" 
+                                   asp-action="Index"
+                                   asp-route-ciudad="@ultimosFiltros.Ciudad"
+                                   asp-route-tipo="@ultimosFiltros.Tipo"
+                                   asp-route-precioMin="@ultimosFiltros.PrecioMin"
+                                   asp-route-precioMax="@ultimosFiltros.PrecioMax"
+                                   asp-route-dormitorios="@ultimosFiltros.Dormitorios">
+                                    <i class="fas fa-history"></i> Última Búsqueda
+                                </a>
+                            </li>
+                        }
+                        
+                        @if (ultimoInmueble.inmuebleId.HasValue)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-success" 
+                                   asp-controller="Inmuebles" 
+                                   asp-action="Details" 
+                                   asp-route-id="@ultimoInmueble.inmuebleId">
+                                    <i class="fas fa-arrow-left"></i> Volver a @ultimoInmueble.titulo
+                                </a>
+                            </li>
+                        }
                     </ul>
+                    
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
